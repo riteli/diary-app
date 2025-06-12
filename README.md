@@ -4,8 +4,8 @@ React + TypeScript + Vite を使って作成した日記アプリです。
 
 ## 主な機能
 
-- モーダルで日記作成（<dialog> 要素）
-- localStorage に保存
+- モーダルで日記作成
+- localStorageに保存
 - 日付ごとに一覧表示
 - 編集・削除機能
 - Firebase連携（予定）
