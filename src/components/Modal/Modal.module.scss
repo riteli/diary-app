@@ -1,0 +1,122 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.modal {
+  position: fixed;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  z-index: 1000;
+  box-sizing: border-box;
+  width: 90%;
+  max-width: 500px;
+  margin: 0;
+  padding: 40px;
+  overflow-x: hidden;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 10px 40px rgb(0 0 0 / 30%);
+  font-family: 'Noto Sans JP', sans-serif;
+  transform: translate(-50%, -50%);
+  animation: fadeIn 0.2s ease-out;
+
+  &::backdrop {
+    background: rgb(0 0 0 / 50%);
+    backdrop-filter: blur(2px);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  color: inherit;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.formLabel {
+  color: #444;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.formControl {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-family: inherit;
+  font-size: 1rem;
+
+  &:focus {
+    border-color: #000;
+  }
+}
+
+.textarea {
+  min-height: 240px;
+  resize: vertical;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #eee;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #ccc;
+  }
+}
+
+.buttonClose {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-end: 8px;
+  width: fit-content;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  &:focus {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+}

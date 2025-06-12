@@ -1,0 +1,48 @@
+.app {
+  min-height: 100vh;
+  padding-block-start: 1rem;
+  background-color: #f5f5f5;
+}
+
+.cardWrapper {
+  max-width: 800px;
+  width: 90%;
+  margin-inline: auto;
+}
+
+.groupDiaries {
+  margin-block: 10px;
+}
+
+.groupDate {
+  padding-block-end: 4px;
+  border-bottom: 2px solid #333;
+  color: #222;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.fabButton {
+  position: fixed;
+  inset-block-end: 60px;
+  inset-inline-end: 105px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #111;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 30%);
+  cursor: pointer;
+
+  &:hover {
+    background-color: #333;
+  }
+
+  @media (max-width: 480px) {
+    inset-block-end: 16px;
+    inset-inline-start: 16px;
+  }
+}
