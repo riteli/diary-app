@@ -12,53 +12,53 @@ function App() {
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
-    const diariesArr = localStorage.getItem('diaries');
-    if (diariesArr !== null) {
-      setDiaries(JSON.parse(diariesArr));
+    const storedDiariesJson = localStorage.getItem('diaries');
+    if (storedDiariesJson !== null) {
+      setDiaries(JSON.parse(storedDiariesJson));
     }
   }, []);
 
   const openModal = () => {
     modalRef.current?.showModal();
-    const diaryTitle = modalRef.current?.querySelector(
+    const diaryTitleInput = modalRef.current?.querySelector(
       '#diaryTitle'
     ) as HTMLInputElement;
-    diaryTitle.focus();
+    diaryTitleInput.focus();
   };
 
-  const resetDiaryToEdit = () => {
+  const resetEditTarget = () => {
     setDiaryToEdit(null);
   };
 
-  const saveDiary = (diaryObject: Diary) => {
-    setDiaries((prev) => {
-      const isEditing = prev.some((diary) => diary.id === diaryObject.id);
+  const saveDiary = (diaryToSave: Diary) => {
+    setDiaries((prevDiaries) => {
+      const isEditing = prevDiaries.some((diary) => diary.id === diaryToSave.id);
       const updatedDiaries = isEditing
-        ? prev.map((diary) =>
-            diary.id === diaryObject.id ? diaryObject : diary
+        ? prevDiaries.map((diary) =>
+            diary.id === diaryToSave.id ? diaryToSave : diary
           )
-        : [...prev, diaryObject];
+        : [...prevDiaries, diaryToSave];
 
       localStorage.setItem('diaries', JSON.stringify(updatedDiaries));
       return updatedDiaries;
     });
   };
 
-  const editDiary = (idToEdit: string) => {
-    const selectedDiary = diaries.find((diary) => diary.id === idToEdit);
-    if (selectedDiary) {
-      setDiaryToEdit(selectedDiary);
+  const handleEditDiary = (diaryIdToEdit: string) => {
+    const targetDiary = diaries.find((diary) => diary.id === diaryIdToEdit);
+    if (targetDiary) {
+      setDiaryToEdit(targetDiary);
     }
     openModal();
   };
 
-  const deleteDiary = (idToDalete: string) => {
-    const updatedDiaries = diaries.filter((diary) => diary.id !== idToDalete);
-    setDiaries(updatedDiaries);
-    localStorage.setItem('diaries', JSON.stringify(updatedDiaries));
+  const handleDeleteDiary = (diaryIdToDelete: string) => {
+    const diariesAfterDeletion = diaries.filter((diary) => diary.id !== diaryIdToDelete);
+    setDiaries(diariesAfterDeletion);
+    localStorage.setItem('diaries', JSON.stringify(diariesAfterDeletion));
   };
 
-  const groupedDiaries = Object.groupBy(
+  const diariesGroupedByDate = Object.groupBy(
     diaries,
     (diary) => diary.date
   ) as Record<string, Diary[]>;
@@ -66,10 +66,10 @@ function App() {
   return (
     <div className={styles.app}>
       <div className={styles.cardWrapper}>
-        {Object.entries(groupedDiaries)
-          .sort(([a], [b]) => b.localeCompare(a))
-          .map(([dateStr, diaries]) => {
-            const date = new Date(dateStr);
+        {Object.entries(diariesGroupedByDate)
+          .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
+          .map(([dateString, diariesForDate]) => {
+            const date = new Date(dateString);
             const formattedDate = date.toLocaleDateString('ja-JP', {
               year: 'numeric',
               month: 'long',
@@ -77,19 +77,19 @@ function App() {
             });
 
             return (
-              <section className={styles.groupDiaries} key={dateStr}>
-                <time className={styles.groupDate} dateTime={dateStr}>
+              <section className={styles.groupDiaries} key={dateString}>
+                <time className={styles.groupDate} dateTime={dateString}>
                   {formattedDate}
                 </time>
-                {diaries.map((diary) => (
+                {diariesForDate.map((diary) => (
                   <DiaryCard
                     key={diary.id}
                     id={diary.id}
                     title={diary.title}
                     date={diary.date}
                     content={diary.content}
-                    onEdit={editDiary}
-                    onDelete={deleteDiary}
+                    onEdit={handleEditDiary}
+                    onDelete={handleDeleteDiary}
                   />
                 ))}
               </section>
@@ -109,7 +109,7 @@ function App() {
       <Modal
         saveDiary={saveDiary}
         editTarget={diaryToEdit}
-        resetTarget={resetDiaryToEdit}
+        resetTarget={resetEditTarget}
         ref={modalRef}
       />
     </div>

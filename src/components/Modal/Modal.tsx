@@ -15,45 +15,45 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const [diaryDate, setDiaryDate] = useState(today);
-  const [diaryTitle, setDiaryTitle] = useState('');
-  const [diaryContent, setDiaryContent] = useState('');
+  const [date, setDate] = useState(today);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
 
   useEffect(() => {
     if (editTarget) {
-      setDiaryDate(editTarget.date);
-      setDiaryTitle(editTarget.title);
-      setDiaryContent(editTarget.content);
+      setDate(editTarget.date);
+      setTitle(editTarget.title);
+      setContent(editTarget.content);
     }
   }, [editTarget]);
 
   const resetForm = () => {
-    setDiaryDate(today);
-    setDiaryTitle('');
-    setDiaryContent('');
+    setDate(today);
+    setTitle('');
+    setContent('');
   };
 
   const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setDiaryDate(event.target.value);
+    setDate(event.target.value);
   };
 
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setDiaryTitle(event.target.value);
+    setTitle(event.target.value);
   };
 
   const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setDiaryContent(event.target.value);
+    setContent(event.target.value);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const diaryObject = {
+    const diaryToSave = {
       id: editTarget?.id ?? crypto.randomUUID(),
-      date: diaryDate,
-      title: diaryTitle,
-      content: diaryContent,
+      date: date,
+      title: title,
+      content: content,
     };
-    saveDiary(diaryObject);
+    saveDiary(diaryToSave);
 
     if (ref && 'current' in ref && ref.current) {
       ref.current.close();
@@ -64,7 +64,7 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
     resetForm();
   };
 
-  const handleClose = () => {
+  const handleModalClose = () => {
     if (ref && 'current' in ref && ref.current) {
       ref.current.close();
     }
@@ -73,6 +73,10 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
     }
     resetForm();
   };
+
+  const isEditing = Boolean(editTarget);
+  const modalTitle = isEditing ? '日記を編集' : '日記を書く';
+  const submitButtonText = isEditing ? '更新する' : '保存する';
 
   return (
     <dialog ref={ref} className={styles.modal}>
@@ -80,13 +84,13 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
         className={clsx(styles.button, styles.buttonClose)}
         type="button"
         aria-label="閉じる"
-        onClick={handleClose}
+        onClick={handleModalClose}
       >
         <MdOutlineCancel size={48} />
       </button>
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleFormSubmit}>
         <fieldset className={styles.fieldset}>
-          <legend className={styles.title}>日記を書く</legend>
+          <legend className={styles.title}>{modalTitle}</legend>
 
           <div className={styles.formGroup}>
             <label className={styles.formLabel} htmlFor="diaryDate">
@@ -97,7 +101,7 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
               type="date"
               name="diaryDate"
               id="diaryDate"
-              value={diaryDate}
+              value={date}
               onChange={handleDateChange}
             />
           </div>
@@ -112,7 +116,7 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
               name="diaryTitle"
               id="diaryTitle"
               placeholder="タイトルを入力"
-              value={diaryTitle}
+              value={title}
               onChange={handleTitleChange}
             />
           </div>
@@ -126,19 +130,19 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
               name="diaryContent"
               id="diaryContent"
               placeholder="今日の出来事や気持ちを書こう"
-              value={diaryContent}
+              value={content}
               onChange={handleContentChange}
             ></textarea>
           </div>
 
           <div className={styles.buttonGroup}>
             <button className={styles.button} type="submit">
-              保存する
+              {submitButtonText}
             </button>
             <button
               className={styles.button}
               type="button"
-              onClick={handleClose}
+              onClick={handleModalClose}
             >
               キャンセル
             </button>
