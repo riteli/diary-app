@@ -1,7 +1,7 @@
 import type { Diary } from './diary';
 
 export interface ModalProps {
-  saveDiary: (diaryObject: Diary) => void;
-  resetTarget: () => void;
+  saveDiary: (diary: Diary) => Promise<void>;
   editTarget: Diary | null;
+  resetTarget: () => void;
 }

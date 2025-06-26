@@ -1,32 +1,44 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithPopup,
   signOut,
+  signInWithPopup,
+  GoogleAuthProvider,
+  type User,
 } from 'firebase/auth';
 import { auth } from '../libs/firebase';
-import type { User } from 'firebase/auth';
 
+// ユーザーの認証状態と、ログイン/ログアウト処理を管理するフック
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
+    // onAuthStateChangedで認証状態の変更を監視
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsLoading(false);
     });
 
+    // アンマウント時に監視を解除
     return () => unsubscribe();
   }, []);
 
-  const login = async () => {
+  // Googleログイン処理
+  const login = useCallback(async () => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  };
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Google login error:', error);
+      alert('ログインに失敗しました');
+    }
+  }, []);
 
-  const logout = async () => {
-    await signOut(auth);
-  };
+  // ログアウト処理
+  const logout = useCallback(() => {
+    signOut(auth);
+  }, []);
 
-  return { user, login, logout };
+  return { user, isLoading, login, logout };
 };

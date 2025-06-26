@@ -1,13 +1,55 @@
+p {
+  margin: 0;
+}
+
 .app {
   min-height: 100vh;
-  padding-block-start: 1rem;
   background-color: #f5f5f5;
+}
+
+.header {
+  width: 100%;
+  background-color: #d8d3d3;
+  border-bottom: 1px solid #ccc;
+}
+
+.headerContents {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  max-width: 95%;
+  padding-block: 15px;
+}
+
+.headerMessage {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.userName {
+  font-weight: bold;
+}
+
+.headerButton {
+  border: none;
+  border-radius: 4px;
+  padding-block: 4px;
+  padding-inline: 4px;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .cardWrapper {
   max-width: 800px;
   width: 90%;
   margin-inline: auto;
+  padding-block: 2rem;
 }
 
 .groupDiaries {
@@ -15,6 +57,7 @@
 }
 
 .groupDate {
+  display: block;
   padding-block-end: 4px;
   border-bottom: 2px solid #333;
   color: #222;
@@ -36,6 +79,7 @@
   background-color: #111;
   box-shadow: 0 4px 8px rgb(0 0 0 / 30%);
   cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
 
   &:hover {
     background-color: #333;
@@ -43,6 +87,29 @@
 
   @media (max-width: 480px) {
     inset-block-end: 16px;
-    inset-inline-start: 16px;
+    inset-inline-end: 16px;
   }
+}
+
+.infoState {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.errorState {
+  margin-block: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #e53e3e;
+  border-radius: 8px;
+  background-color: #fff5f5;
+  color: #c53030;
+  font-weight: 500;
+  text-align: center;
 }

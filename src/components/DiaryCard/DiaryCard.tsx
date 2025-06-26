@@ -1,9 +1,17 @@
 import clsx from 'clsx';
 import styles from './DiaryCard.module.scss';
-import type { DiaryCardProps } from '../../types/DiaryCardProps';
+
+// DiaryCardコンポーネントのProps
+interface DiaryCardProps {
+  id: string;
+  title: string;
+  content: string;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+}
 
 export const DiaryCard = (props: DiaryCardProps) => {
-  const { id, title, content, onDelete, onEdit } = props;
+  const { id, title, content, onEdit, onDelete } = props;
 
   const handleEdit = () => onEdit(id);
   const handleDelete = () => onDelete(id);

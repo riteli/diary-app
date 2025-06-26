@@ -1,134 +1,152 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { SlNote } from 'react-icons/sl';
 import styles from './DiaryApp.module.scss';
-import type { Diary } from '../../types/diary';
 import { useAuth } from '../../hooks/useAuth';
+import { useDiaries } from '../../hooks/useDiaries';
 import { Modal } from '../../components/Modal/Modal';
 import { DiaryCard } from '../../components/DiaryCard/DiaryCard';
+import {
+  groupDiariesByDate,
+  formatDateForDisplay,
+} from '../../utils/dateUtils';
+import type { Diary } from '../../types/diary';
 
 function DiaryApp() {
   const { user, logout } = useAuth();
-
-  const [diaries, setDiaries] = useState<Diary[]>([]);
-  const [diaryToEdit, setDiaryToEdit] = useState<Diary | null>(null);
+  // 日記関連の状態とロジックをフックから取得
+  const {
+    diaries,
+    isLoading,
+    error,
+    diaryToEdit,
+    saveDiary,
+    deleteDiary,
+    selectDiaryToEdit,
+  } = useDiaries();
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
-  useEffect(() => {
-    const storedDiariesJson = localStorage.getItem('diaries');
-    if (storedDiariesJson !== null) {
-      setDiaries(JSON.parse(storedDiariesJson));
-    }
-  }, []);
-
-  const openModal = () => {
+  // モーダルを開いて、タイトルにフォーカスを当てる関数
+  const openModalAndFocus = () => {
     modalRef.current?.showModal();
-    const diaryTitleInput = modalRef.current?.querySelector(
-      '#diaryTitle'
-    ) as HTMLInputElement;
-    diaryTitleInput.focus();
+    const titleInput =
+      modalRef.current?.querySelector<HTMLInputElement>('#diaryTitle');
+    titleInput?.focus();
   };
 
-  const resetEditTarget = () => {
-    setDiaryToEdit(null);
+  // 新規日記作成モーダルを開く
+  const handleOpenNewDiaryModal = () => {
+    selectDiaryToEdit(null);
+    openModalAndFocus();
   };
 
-  const saveDiary = (diaryToSave: Diary) => {
-    setDiaries((prevDiaries) => {
-      const isEditing = prevDiaries.some(
-        (diary) => diary.id === diaryToSave.id
-      );
-      const updatedDiaries = isEditing
-        ? prevDiaries.map((diary) =>
-            diary.id === diaryToSave.id ? diaryToSave : diary
-          )
-        : [...prevDiaries, diaryToSave];
-
-      localStorage.setItem('diaries', JSON.stringify(updatedDiaries));
-      return updatedDiaries;
-    });
+  // 編集モーダルを開く
+  const handleEdit = (diaryId: string) => {
+    selectDiaryToEdit(diaryId);
+    openModalAndFocus();
+  };
+  // モーダルが閉じた時に編集状態をリセットする
+  const handleCloseModal = () => {
+    selectDiaryToEdit(null);
   };
 
-  const handleEditDiary = (diaryIdToEdit: string) => {
-    const targetDiary = diaries.find((diary) => diary.id === diaryIdToEdit);
-    if (targetDiary) {
-      setDiaryToEdit(targetDiary);
+  // 日記を削除する
+  const handleDelete = async (diaryId: string) => {
+    if (!window.confirm('この日記を本当に削除しますか？')) {
+      return;
     }
-    openModal();
+    try {
+      await deleteDiary(diaryId);
+    } catch (error) {
+      console.error('Failed to delete Diary', error);
+      alert('日記の削除に失敗しました');
+    }
   };
 
-  const handleDeleteDiary = (diaryIdToDelete: string) => {
-    const diariesAfterDeletion = diaries.filter(
-      (diary) => diary.id !== diaryIdToDelete
-    );
-    setDiaries(diariesAfterDeletion);
-    localStorage.setItem('diaries', JSON.stringify(diariesAfterDeletion));
+  // 日記を保存する
+  const handleSave = async (diary: Diary) => {
+    try {
+      await saveDiary(diary);
+      modalRef.current?.close();
+    } catch (error) {
+      console.error('Failed to save diary', error);
+    }
   };
 
-  const diariesGroupedByDate = Object.groupBy(
-    diaries,
-    (diary) => diary.date
-  ) as Record<string, Diary[]>;
+  // 日付で日記をグループ化
+  const diariesGroupedByDate = groupDiariesByDate(diaries);
+  const dateEntries = Object.entries(diariesGroupedByDate);
+
+  // 表示するコンテンツを決定する
+  const renderContent = () => {
+    if (isLoading) {
+      return <div className={styles.infoState}>読み込み中...</div>;
+    }
+    if (error) {
+      return <div className={styles.errorState}>{error}</div>;
+    }
+    if (dateEntries.length === 0) {
+      return (
+        <div className={styles.infoState}>
+          <p>まだ日記がありません。</p>
+          <p>最初の日記を書いてみましょう！</p>
+        </div>
+      );
+    }
+    return dateEntries.map(([dateString, diariesForDate]) => (
+      <section className={styles.groupDiaries} key={dateString}>
+        <time className={styles.groupDate} dateTime={dateString}>
+          {formatDateForDisplay(dateString)}
+        </time>
+        {diariesForDate.map((diary) => (
+          <DiaryCard
+            key={diary.id}
+            id={diary.id}
+            title={diary.title}
+            content={diary.content}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ))}
+      </section>
+    ));
+  };
 
   return (
     <div className={styles.app}>
       <header className={styles.header}>
         {user && (
-          <>
-            <p>こんにちは、 {user.displayName} さん</p>
-            <button type="button" onClick={logout}>
+          <div className={styles.headerContents}>
+            <p className={styles.headerMessage}>
+              こんにちは、
+              <span className={styles.userName}>{user.displayName}</span>さん
+            </p>
+            <button
+              className={styles.headerButton}
+              type="button"
+              onClick={logout}
+            >
               ログアウト
             </button>
-          </>
+          </div>
         )}
       </header>
-
-      <div className={styles.cardWrapper}>
-        {Object.entries(diariesGroupedByDate)
-          .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
-          .map(([dateString, diariesForDate]) => {
-            const date = new Date(dateString);
-            const formattedDate = date.toLocaleDateString('ja-JP', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            });
-
-            return (
-              <section className={styles.groupDiaries} key={dateString}>
-                <time className={styles.groupDate} dateTime={dateString}>
-                  {formattedDate}
-                </time>
-                {diariesForDate.map((diary) => (
-                  <DiaryCard
-                    key={diary.id}
-                    id={diary.id}
-                    title={diary.title}
-                    date={diary.date}
-                    content={diary.content}
-                    onEdit={handleEditDiary}
-                    onDelete={handleDeleteDiary}
-                  />
-                ))}
-              </section>
-            );
-          })}
-      </div>
+      <main className={styles.cardWrapper}>{renderContent()}</main>
 
       <button
         className={styles.fabButton}
         type="button"
         aria-label="日記を書く"
-        onClick={openModal}
+        onClick={handleOpenNewDiaryModal}
       >
         <SlNote size={32} color="white" />
       </button>
 
       <Modal
-        saveDiary={saveDiary}
-        editTarget={diaryToEdit}
-        resetTarget={resetEditTarget}
         ref={modalRef}
+        onSave={handleSave}
+        onClose={handleCloseModal}
+        editTarget={diaryToEdit}
       />
     </div>
   );

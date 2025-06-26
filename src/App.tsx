@@ -4,14 +4,21 @@ import DiaryApp from './components/DiaryApp/DiaryApp';
 import { LoginPage } from './components/LoginPage/LoginPage';
 
 function App() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>読み込み中...</div>;
+  }
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
         <Route
-          path="/"
+          path="/login"
+          element={!user ? <LoginPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/*"
           element={user ? <DiaryApp /> : <Navigate to="/login" replace />}
         />
       </Routes>
