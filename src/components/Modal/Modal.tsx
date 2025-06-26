@@ -22,6 +22,9 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>(
   ({ onSave, onClose, editTarget }, ref) => {
     const today = new Date().toISOString().split('T')[0];
 
+    // タイトルの最大文字数
+    const MAX_TITLE_LENGTH = 35;
+
     // フォームの内部状態
     const [date, setDate] = useState(today);
     const [title, setTitle] = useState('');
@@ -119,11 +122,19 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>(
                 type="text"
                 id="diaryTitle"
                 placeholder="タイトルを入力"
+                maxLength={MAX_TITLE_LENGTH}
                 value={title}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setTitle(e.target.value)
                 }
               />
+              <span
+                className={clsx(styles.titleCharCounter, {
+                  [styles.limitReached]: title.length >= MAX_TITLE_LENGTH,
+                })}
+              >
+                {title.length} / {MAX_TITLE_LENGTH}
+              </span>
             </div>
 
             <div className={styles.formGroup}>

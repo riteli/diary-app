@@ -61,6 +61,12 @@
   text-align: center;
 }
 
+.titleCharCounter {
+  display: flex;
+  justify-content: flex-end;
+  color: #757575;
+}
+
 .formLabel {
   color: #444;
   font-size: 0.875rem;
@@ -83,6 +89,10 @@
 .textarea {
   min-height: 240px;
   resize: vertical;
+}
+
+.limitReached {
+  color: #f44336;
 }
 
 .buttonGroup {
