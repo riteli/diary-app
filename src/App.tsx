@@ -2,12 +2,13 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import DiaryApp from './components/DiaryApp/DiaryApp';
 import { LoginPage } from './components/LoginPage/LoginPage';
+import styles from './App.module.scss';
 
 function App() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>読み込み中...</div>;
+    return <div className={styles.loadingText}>読み込み中...</div>;
   }
 
   return (

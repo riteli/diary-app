@@ -4,8 +4,11 @@ import {
   signOut,
   signInWithPopup,
   GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   type User,
 } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { auth } from '../libs/firebase';
 
 // ユーザーの認証状態と、ログイン/ログアウト処理を管理するフック
@@ -25,13 +28,40 @@ export const useAuth = () => {
   }, []);
 
   // Googleログイン処理
-  const login = useCallback(async () => {
+  const signInWithGoogle = useCallback(async () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error('Google login error:', error);
-      alert('ログインに失敗しました');
+    }
+  }, []);
+
+  // emailサインアップ処理
+  const signUp = useCallback(async (email: string, password: string) => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        console.error('Firebase Error Code:', error);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
+      throw error
+    }
+  }, []);
+
+  // emailログイン処理
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        console.error('Firebase Error Code:', error);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
+      throw error;
     }
   }, []);
 
@@ -40,5 +70,5 @@ export const useAuth = () => {
     signOut(auth);
   }, []);
 
-  return { user, isLoading, login, logout };
+  return { user, isLoading, signInWithGoogle, signUp, signIn, logout };
 };
