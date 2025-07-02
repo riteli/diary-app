@@ -12,7 +12,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/diary-app">
       <Routes>
         <Route
           path="/login"

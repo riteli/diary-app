@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './LoginPage.module.scss';
 import clsx from 'clsx';
+import appLogo from '/images/app-logo.png';
 
 export const LoginPage = () => {
   const { user, signIn, signUp, signInWithGoogle } = useAuth();
@@ -53,12 +54,7 @@ export const LoginPage = () => {
   return (
     <main className={styles.container}>
       <h1 className={styles.logo}>
-        <img
-          src="/images/app-logo.png"
-          width={238}
-          height={46}
-          alt="シンプル日記"
-        />
+        <img src={appLogo} width={238} height={46} alt="シンプル日記" />
       </h1>
       <p className={styles.description}>あなたの毎日を記録する場所</p>
 
