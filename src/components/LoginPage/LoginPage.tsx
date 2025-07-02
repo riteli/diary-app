@@ -105,11 +105,7 @@ export const LoginPage = () => {
           </button>
 
           <div className={styles.errorMessageContainer}>
-            {
-              authError && (
-                <p className={styles.errorMessage}>{authError}</p>
-              )
-            }
+            {authError && <p className={styles.errorMessage}>{authError}</p>}
           </div>
 
           {isLoginView ? (

@@ -6,11 +6,11 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
   type User,
 } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { auth } from '../libs/firebase';
-
 // ユーザーの認証状態と、ログイン/ログアウト処理を管理するフック
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -47,7 +47,7 @@ export const useAuth = () => {
       } else {
         console.error('An unexpected error occurred:', error);
       }
-      throw error
+      throw error;
     }
   }, []);
 
@@ -70,5 +70,30 @@ export const useAuth = () => {
     signOut(auth);
   }, []);
 
-  return { user, isLoading, signInWithGoogle, signUp, signIn, logout };
+  //プロフィールの変更
+  const updateDisplayName = useCallback(async (newName: string) => {
+    if (auth.currentUser) {
+      try {
+        await updateProfile(auth.currentUser, {
+          displayName: newName,
+        });
+        setUser({ ...auth.currentUser });
+      } catch (error) {
+        console.error('Display name update error:', error);
+        throw error;
+      }
+    } else {
+      throw new Error('User not authenticated.');
+    }
+  }, []);
+
+  return {
+    user,
+    isLoading,
+    signInWithGoogle,
+    signUp,
+    signIn,
+    logout,
+    updateDisplayName,
+  };
 };

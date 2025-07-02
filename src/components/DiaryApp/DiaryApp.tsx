@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, type ChangeEvent } from 'react';
 import { SlNote } from 'react-icons/sl';
 import styles from './DiaryApp.module.scss';
 import { useAuth } from '../../hooks/useAuth';
@@ -12,7 +12,7 @@ import {
 import type { Diary } from '../../types/diary';
 
 function DiaryApp() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateDisplayName } = useAuth();
   // 日記関連の状態とロジックをフックから取得
   const {
     diaries,
@@ -24,7 +24,32 @@ function DiaryApp() {
     selectDiaryToEdit,
   } = useDiaries();
 
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+
   const modalRef = useRef<HTMLDialogElement | null>(null);
+
+  // ユーザー名の変更
+  const handleStartEditing = () => {
+    setNewName(user?.displayName || '');
+    setIsEditingName(true);
+  };
+
+  const handleUpdateName = async () => {
+    try {
+      await updateDisplayName(newName);
+    } catch (error) {
+      alert('名前の更新に失敗しました');
+      console.error('Failed to update display name', error);
+    } finally {
+      setIsEditingName(false);
+    }
+  };
+
+  const handleCancelEditing = () => {
+    setNewName('');
+    setIsEditingName(false);
+  };
 
   // モーダルを開いて、タイトルにフォーカスを当てる関数
   const openModalAndFocus = () => {
@@ -117,10 +142,49 @@ function DiaryApp() {
       <header className={styles.header}>
         {user && (
           <div className={styles.headerContents}>
-            <p className={styles.headerMessage}>
-              こんにちは、
-              <span className={styles.userName}>{user.displayName}</span>さん
-            </p>
+            {isEditingName ? (
+              <>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setNewName(e.target.value)
+                  }
+                />
+                <button
+                  className={styles.headerButton}
+                  type="button"
+                  onClick={handleUpdateName}
+                >
+                  名前を更新
+                </button>
+                <button
+                  className={styles.headerButton}
+                  type="button"
+                  onClick={handleCancelEditing}
+                >
+                  キャンセル
+                </button>
+              </>
+            ) : (
+              <>
+                <p className={styles.headerMessage}>
+                  こんにちは、
+                  <span className={styles.userName}>
+                    {user.displayName || 'ゲスト'}
+                  </span>
+                  さん
+                </p>
+                <button
+                  className={styles.headerButton}
+                  type="button"
+                  onClick={handleStartEditing}
+                >
+                  名前を編集
+                </button>
+              </>
+            )}
+
             <button
               className={styles.headerButton}
               type="button"
